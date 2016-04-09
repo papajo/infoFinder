@@ -19678,11 +19678,15 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var AppConstants = require('../constants/AppConstants');
 
 var AppActions = {
-	
+		searchText: function(search){
+			AppDispatcher.handleViewAction({
+				actionType: AppConstants.SEARCH_TEXT,
+				search: search
+			})
+		}
 }
 
 module.exports = AppActions;
-
 },{"../constants/AppConstants":168,"../dispatcher/AppDispatcher":169}],165:[function(require,module,exports){
 var React = require('react');
 var AppActions = require('../actions/AppActions');
@@ -19732,14 +19736,27 @@ var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 
-
 var SearchForm = React.createClass({displayName: "SearchForm",
 	render: function(){
 		return (
 			React.createElement("div", null, 
-				"FORM"
+				React.createElement("form", {onSubmit: this.searchText, className: "well"}, 
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("label", null, "Search for something.."), 
+						React.createElement("input", {type: "text", className: "form-control", ref: "text"})
+					)
+				)
 			)
 		)
+	},
+
+	searchText: function(e){
+		e.preventDefault();
+
+		var search = {
+			text: this.refs.text.value.trim()
+		}
+		AppActions.searchText(search);
 	}
 });
 
@@ -19765,9 +19782,8 @@ module.exports = SearchResults;
 
 },{"../actions/AppActions":164,"../stores/AppStore":171,"react":163}],168:[function(require,module,exports){
 module.exports = {
-
+  SEARCH_TEXT: 'SEARCH_TEXT'
 }
-
 },{}],169:[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
 var assign = require('object-assign');
@@ -19806,8 +19822,12 @@ var AppAPI = require('../utils/AppAPI.js');
 var CHANGE_EVENT = 'change';
 
 var _items = [];
+var _searchText = '';
 
 var AppStore = assign({}, EventEmitter.prototype, {
+	setSearchText: function(search){
+		_searchText = search.text;
+	},
 	emitChange: function(){
 		this.emit(CHANGE_EVENT);
 	},
@@ -19823,14 +19843,17 @@ AppDispatcher.register(function(payload){
 	var action = payload.action;
 
 	switch(action.actionType){
-		
+		case AppConstants.SEARCH_TEXT:
+				AppAPI.searchText(action.search);
+				AppStore.setSearchText(action.search);
+				AppStore.emit(CHANGE_EVENT);
+				break;
 	}
 
 	return true;
 });
 
 module.exports = AppStore;
-
 },{"../constants/AppConstants":168,"../dispatcher/AppDispatcher":169,"../utils/AppAPI.js":172,"events":1,"object-assign":32}],172:[function(require,module,exports){
 var AppActions = require('../actions/AppActions');
 
