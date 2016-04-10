@@ -13,6 +13,9 @@ var AppStore = assign({}, EventEmitter.prototype, {
 	setSearchText: function(search){
 		_searchText = search.text;
 	},
+	getSearchText: function() {
+			return _searchText;
+	},
 	emitChange: function(){
 		this.emit(CHANGE_EVENT);
 	},
@@ -24,6 +27,9 @@ var AppStore = assign({}, EventEmitter.prototype, {
 	},
 	setResults: function(results){
 		_results: results;
+	},
+	getResults: function(){
+		return _results;
 	}
 });
 
